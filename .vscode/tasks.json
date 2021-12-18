@@ -1,0 +1,40 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+    {
+      "type": "cppbuild",
+      "label": "Building main.cpp using C/C++: g++-7 build active file",
+      "command": "/usr/bin/g++-7",
+      "args": [
+        "-fdiagnostics-color=always",
+        "-g", // telling g++ using debug mode
+        "./main.cpp", // main.cpp
+        "glad.c",
+        "-I",
+        "./include", // GLAD
+        // "-lGLU", // link
+        // "-lglut",
+        "-lglfw", // GLFW
+        "-lGL", // OpenGL
+        // "-lm", // m: math library that glfw or opengl or something else uses
+        // "-lX11", // X11: window control
+        // "-lpthread", // pthread: POSIX threads, basically allows you to open a new process thread?
+        // "-lXi", // Xi: X11 input extenstion (input)
+        // "-lXrandr", // Xrandr: window resize and rotate
+        "-ldl", // dynamic linking loader
+        "-o", "./build/a.out",
+      ],
+      "options": {
+        "cwd": "${fileDirname}"
+      },
+      "problemMatcher": [
+        "$gcc"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "detail": "compiler: /usr/bin/g++-7"
+    }
+  ]
+}
