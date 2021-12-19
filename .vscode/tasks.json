@@ -9,6 +9,10 @@
         "-fdiagnostics-color=always",
         "-g", // telling g++ using debug mode
         "./main.cpp", // main.cpp
+        "./src/shader.cpp",
+        "./src/VAO.cpp",
+        "./src/VBO.cpp",
+        "./src/EBO.cpp",
         "glad.c",
         "-I",
         "./include", // GLAD
