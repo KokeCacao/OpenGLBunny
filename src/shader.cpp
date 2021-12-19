@@ -26,11 +26,13 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile) {
   // 1 means 1 screen for the shader
   glShaderSource(vertexShader, 1, &vertexCode, NULL);
   glCompileShader(vertexShader);
+  compileErrors(vertexShader, "VERTEX");
 
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
   // 1 means 1 screen for the shader
   glShaderSource(fragmentShader, 1, &fragmentCode, NULL);
   glCompileShader(fragmentShader);
+  compileErrors(fragmentShader, "FRAGMENT");
 
   // attach shader to object called shader program
   ID = glCreateProgram();
@@ -49,4 +51,22 @@ void Shader::Activate() {
 
 void Shader::Delete() {
   glDeleteProgram(ID);
+}
+
+void Shader::compileErrors(GLuint shader, const char* type) {
+  GLint compiled;
+  char infoLog[1024];
+  if (type != "PROGRAM") {
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
+    if (compiled == GL_FALSE) {
+      glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+      std::cout << "SHADER_COMPILATION_ERROR for:" << type << "\n" << std::endl;
+    }
+  } else {
+    glGetProgramiv(shader, GL_COMPILE_STATUS, &compiled);
+    if (compiled == GL_FALSE) {
+      glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+      std::cout << "SHADER_CLINKING_ERROR for:" << type << "\n" << std::endl;
+    }
+  }
 }

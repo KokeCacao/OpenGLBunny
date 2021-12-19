@@ -56,6 +56,7 @@ int main() {
 
   // ========== Load Shader ==========
   Shader shaderProgram("./src/shader/default.vert", "./src/shader/default.frag");
+  GLuint uniformScaleID = glGetUniformLocation(shaderProgram.ID, "scale");
 
   // ========== Create VAO, VBO, EBO ==========
   VAO VAO1;
@@ -79,6 +80,7 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     shaderProgram.Activate();
+    glUniform1f(uniformScaleID, 0.5f); // must be after [shaderProgram.Activate()]
     VAO1.Bind();
 
     // specify:

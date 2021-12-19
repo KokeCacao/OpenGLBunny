@@ -17,6 +17,8 @@ class Shader {
 
     void Activate();
     void Delete();
+  private:
+    void compileErrors(GLuint shader, const char* type);
 };
 
 #endif
