@@ -77,6 +77,9 @@ int main() {
   VBO1.Unbind();
   EBO1.Unbind(); // TODO: not sure why I have to unbind this after unbind VAO for something that stores in VAO
 
+  // Enable Depth Buffer so that triangle can be on top of each other
+  glEnable(GL_DEPTH_TEST);
+
   double prev_time = glfwGetTime();
   // ========== Main program ==========
   while (!glfwWindowShouldClose(window)) {
@@ -87,7 +90,7 @@ int main() {
 
     // "Clearing" in this context means filling with some predefined values
     glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shaderProgram.Activate();
 
