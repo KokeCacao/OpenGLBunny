@@ -6,8 +6,10 @@ VBO::VBO(GLfloat* vertices, GLsizeiptr vertices_size) {
   // If you still don't understand, watch first 3min of
   // This video [https://www.youtube.com/watch?v=WMiggUPst-Q&ab_channel=ThinMatrix]
 
-  glGenBuffers(1, &ID); // allocate 1 element
-  glBindBuffer(GL_ARRAY_BUFFER, ID); // GL_ARRAY_BUFFER is the type for vertex buffer
+  glGenBuffers(1, &ID); // allocate 1 element // TODO: what is this element
+
+  // GL_ARRAY_BUFFER is the type for vertex buffer, this binds [ID] to a spot called [GL_ARRAY_BUFFER]
+  glBindBuffer(GL_ARRAY_BUFFER, ID);
 
   // STREAM: vertices will be used a few times
   // STATIC: vertices will be used many times

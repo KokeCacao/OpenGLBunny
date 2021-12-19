@@ -4,9 +4,9 @@ EBO::EBO(GLuint* indices, GLsizeiptr indices_size) {
   // ========== Create EBO (Index Buffer Object) ==========
   // GL_ELEMENT_ARRAY_BUFFER is used to indicate this buffer
   // contains the indices of each element in the "other"(GL_ARRAY_BUFFER) buffer
-  glGenBuffers(1, &ID); // allocate 1 element
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID); // GL_ARRAY_BUFFER is the type for vertex buffer
-
+  // TODO: I think there can only be one bounded [GL_ELEMENT_ARRAY_BUFFER] at given time. But [GL_ELEMENT_ARRAY_BUFFER] and [GL_ARRAY_BUFFER] can coexist.
+  glGenBuffers(1, &ID);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_size, indices, GL_STATIC_DRAW);
 }
 

@@ -1,11 +1,12 @@
 #include "VAO.h"
 
 VAO::VAO() {
+  // n: Specifies the number of vertex array object names to generate.
   glGenVertexArrays(1, &ID); // this must be done before initializing VBO and EBO
 }
 
 // layout: usually 0, for position of VBO in VAO
-void VAO::LinkVBO(VBO VBO, GLuint layout) {
+void VAO::LinkAtt(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
   VBO.Bind();
   // specify:
   // 1. position of vertex attribute in VAO
@@ -14,7 +15,7 @@ void VAO::LinkVBO(VBO VBO, GLuint layout) {
   // 4. if coordinates are integer
   // 5. stride (0 if tightly packed)
   // 6. offset, where it begins
-  glVertexAttribPointer(layout, 3, GL_FLOAT, GL_FALSE, 0, (void *) 0);
+  glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
   glEnableVertexAttribArray(layout);
   VBO.Unbind();
 }

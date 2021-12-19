@@ -17,10 +17,11 @@ const uint GLFW_MINOR_VERSION = 6;
 
 // define vertices to render
 // Note: we use [GLfloat] instead of [float] due to versions of [OpenGL] may specify different precision
+// =========== POSITION =========== // =========== COLOR =========== //
 GLfloat vertices[] = {
-  -0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-  0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f,
-  0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f,
+  -0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f,   1.0f, 0.0f, 0.0f,
+  0.5f,  -0.5f * float(sqrt(3)) / 3,     0.0f,   0.0f, 1.0f, 0.0f,
+  0.0f,   0.5f * float(sqrt(3)) * 2 / 3, 0.0f,   0.0f, 0.0f, 1.0f,
 };
 
 // connect vertices to triangles
@@ -63,7 +64,8 @@ int main() {
   VBO VBO1(vertices, sizeof(vertices));
   EBO EBO1(indices, sizeof(indices));
 
-  VAO1.LinkVBO(VBO1, 0);
+  VAO1.LinkAtt(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*) 0);
+  VAO1.LinkAtt(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*) (3 * sizeof(GL_FLOAT)));
 
   // unbind: avoid accidentally modify buffer
   VAO1.Unbind();

@@ -137,3 +137,7 @@ Now you can build your program by `Ctrl` + `Shift` + `P` to launch `Tasks: Run b
   ]
 }
 ```
+
+## OpenGL Concepts
+
+![Byte Storage in VBO](imgs/2021-12-19-01-22-24.png)
