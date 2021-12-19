@@ -10,7 +10,11 @@ out vec3 color;
 // For more about [uniform], see: https://www.youtube.com/watch?v=DE6Xlx_kbo0&ab_channel=TheCherno
 uniform float scale;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
+
 void main() {
-    gl_Position = vec4(scale * aPos.x, scale * aPos.y, scale * aPos.z, 1.0);
+    gl_Position = proj * view * model * vec4(scale * aPos.x, scale * aPos.y, scale * aPos.z, 1.0);
     color = aColor;
 }

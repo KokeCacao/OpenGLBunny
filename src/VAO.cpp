@@ -6,7 +6,7 @@ VAO::VAO() {
 }
 
 // layout: usually 0, for position of VBO in VAO
-void VAO::LinkAtt(VBO VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
+void VAO::LinkAtt(VBO& VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, void* offset) {
   VBO.Bind();
   // specify:
   // 1. position of vertex attribute in VAO

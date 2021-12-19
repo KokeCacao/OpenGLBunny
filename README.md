@@ -44,6 +44,10 @@ The following packages will be upgraded:
   libvulkan1
 ```
 
+## Installing GLM
+For `#include<glm/glm.hpp> #include<glm/ext.hpp>`, we need `sudo apt install libglm-dev`. [GLM](https://github.com/g-truc/glm) is a library that provide us matrix to work with.
+
+
 ### Configure VSCode
 
 To configure `#include<glad/glad.h>`, change it to `#include "include/glad/glad.h"`
