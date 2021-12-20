@@ -21,7 +21,8 @@ void Camera::UpdateMatrix(float FOV, float nearPlane, float farPlane, GLuint uni
 }
 
 void Camera::KeyboardControl(GLFWwindow* window) {
-  printf("%f, %f, %f\n", Position.x, Position.y, Position.z);
+  glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
   if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
     Position += speed * Orientation;
   }
@@ -40,4 +41,25 @@ void Camera::KeyboardControl(GLFWwindow* window) {
   if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) {
     Position += speed * -Up;
   }
+  if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+    exit(0);
+  }
+
+  double mouseX;
+  double mouseY;
+  glfwGetCursorPos(window, &mouseX, &mouseY);
+
+  float rotX = sensitivity * (float)(mouseX - (screen_width / 2));
+  float rotY = sensitivity * (float)(mouseY - (screen_height / 2));
+
+  // choose 5.0f avoid camera jiggering when 90 degree up
+  // TODO: not sure why X, Y inverted
+  glm::vec3 _ = glm::rotate(Orientation, glm::radians(-rotY), glm::normalize(glm::cross(Orientation, Up)));
+  if (glm::angle(_, Up) > glm::radians(5.0f) and glm::angle(_, -Up) > glm::radians(5.0f)) {
+    Orientation = _;
+  }
+  Orientation = glm::rotate(Orientation, glm::radians(-rotX), Up);
+
+  
+  glfwSetCursorPos(window, screen_width / 2, screen_height / 2);
 }

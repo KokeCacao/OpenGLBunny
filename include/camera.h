@@ -6,6 +6,11 @@
 #include<glm/glm.hpp>
 #include<glm/ext.hpp>
 
+// Experimental Feature enable 3d rotation
+#define GLM_ENABLE_EXPERIMENTAL
+#include<glm/gtx/rotate_vector.hpp>
+#include<glm/gtx/vector_angle.hpp>
+
 #include "shader.h"
 
 class Camera {

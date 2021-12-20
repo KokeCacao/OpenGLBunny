@@ -85,7 +85,7 @@ int main() {
   glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f); // TODO: not sure why this
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
-  Camera camera(WIDTH, HEIGHT, position, orientation, up, 0.001f, 100.0f);
+  Camera camera(WIDTH, HEIGHT, position, orientation, up, 0.001f, 0.1f);
 
   // ========== Main program ========== //
   double prev_time = glfwGetTime();
