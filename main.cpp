@@ -5,6 +5,7 @@
 #include<glm/ext.hpp>
 #include<math.h>
 
+#include "camera.h"
 #include "shader.h"
 #include "VAO.h"
 #include "VBO.h"
@@ -51,18 +52,18 @@ int main() {
   // Link window we have created to the screen
   glfwMakeContextCurrent(window);
 
-  // ========== Load OpenGL ==========
+  // ========== Load OpenGL ========== //
   gladLoadGL();
   glViewport(0, 0, WIDTH, HEIGHT); // Now we have created a window, this specify which region of the window needs OpenGL
 
-  // ========== Load Shader ==========
+  // ========== Load Shader ========== //
   Shader shaderProgram("./src/shader/default.vert", "./src/shader/default.frag");
   GLuint uniformScaleID = glGetUniformLocation(shaderProgram.ID, "scale");
   GLuint uniformModel = glGetUniformLocation(shaderProgram.ID, "model");
   GLuint uniformView = glGetUniformLocation(shaderProgram.ID, "view");
   GLuint uniformProj = glGetUniformLocation(shaderProgram.ID, "proj");
 
-  // ========== Create VAO, VBO, EBO ==========
+  // ========== Create VAO, VBO, EBO ========== //
   VAO VAO1;
   VAO1.Bind();
 
@@ -78,10 +79,16 @@ int main() {
   EBO1.Unbind(); // TODO: not sure why I have to unbind this after unbind VAO for something that stores in VAO
 
   // Enable Depth Buffer so that triangle can be on top of each other
-  glEnable(GL_DEPTH_TEST);
+  // glEnable(GL_DEPTH_TEST); // TODO: not sure why triangle disappear
 
+  // ========== Camera ========== //
+  glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
+  glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f); // TODO: not sure why this
+  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+  Camera camera(WIDTH, HEIGHT, position, orientation, up, 0.001f, 100.0f);
+
+  // ========== Main program ========== //
   double prev_time = glfwGetTime();
-  // ========== Main program ==========
   while (!glfwWindowShouldClose(window)) {
     double current_time = glfwGetTime();
     double elapsed_time = glfwGetTime() - prev_time;
@@ -94,24 +101,16 @@ int main() {
 
     shaderProgram.Activate();
 
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-
-    // x: positive right, negative left
-    // y: positive up, negative down
-    // z: positive toward camera
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -1.0f)); // move world
-
-    // FOV: in radian
-    // aspect ratio of screen
-    // Closest Point we can see
-    // Farest Point we can see
-    glm::mat4 proj = glm::perspective(glm::radians(85.0f), (float)(WIDTH/HEIGHT), 0.0f, 100.0f);
-
+    // model rotation
     glUniform1f(uniformScaleID, 0.5f); // must be after [shaderProgram.Activate()]
-    // GL_FALSE: don't want OpenGL to transpose it
+
+    // model scale
+    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-    glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(uniformProj, 1, GL_FALSE, glm::value_ptr(proj));
+
+    // camera
+    camera.KeyboardControl(window);
+    camera.UpdateMatrix(90.0f, 0.0f, 100.0f, uniformView, uniformProj);
 
     VAO1.Bind();
 

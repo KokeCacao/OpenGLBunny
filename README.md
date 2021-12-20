@@ -145,3 +145,6 @@ Now you can build your program by `Ctrl` + `Shift` + `P` to launch `Tasks: Run b
 ## OpenGL Concepts
 
 ![Byte Storage in VBO](imgs/2021-12-19-01-22-24.png)
+
+## Model, View, Projection Matrices
+They are 4-dim matrix because we don't want the origin to be fixed. Here is a [funny video](https://www.youtube.com/watch?v=-tonZsbHty8&ab_channel=UCDavisAcademics) explain basic concept.
