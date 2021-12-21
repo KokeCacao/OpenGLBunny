@@ -20,11 +20,11 @@ const uint GLFW_MINOR_VERSION = 6;
 
 // define vertices to render
 // Note: we use [GLfloat] instead of [float] due to versions of [OpenGL] may specify different precision
-// =========== POSITION =========== // =========== COLOR =========== //
+// =========== POSITION =========== // =========== COLOR =========== // =========== NORMAL =========== //
 GLfloat vertices[] = {
-  -0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f,   1.0f, 0.0f, 0.0f,
-  0.5f,  -0.5f * float(sqrt(3)) / 3,     0.0f,   0.0f, 1.0f, 0.0f,
-  0.0f,   0.5f * float(sqrt(3)) * 2 / 3, 0.0f,   0.0f, 0.0f, 1.0f,
+  -0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f,   1.0f, 0.0f, 0.0f,        0.0f, 0.0f, 1.0f,
+  0.5f,  -0.5f * float(sqrt(3)) / 3,     0.0f,   0.0f, 1.0f, 0.0f,        0.0f, 0.0f, 1.0f,
+  0.0f,   0.5f * float(sqrt(3)) * 2 / 3, 0.0f,   0.0f, 0.0f, 1.0f,        0.0f, 0.0f, 1.0f,
 };
 
 // connect vertices to triangles
@@ -84,11 +84,11 @@ int main() {
 
   // ========== Load Shader ========== //
   Shader shaderProgram("./src/shader/default.vert", "./src/shader/default.frag");
-  GLuint uniformScaleID = glGetUniformLocation(shaderProgram.ID, "scale");
   GLuint uniformModel = glGetUniformLocation(shaderProgram.ID, "model");
   GLuint uniformView = glGetUniformLocation(shaderProgram.ID, "view");
   GLuint uniformProj = glGetUniformLocation(shaderProgram.ID, "proj");
   GLuint uniformLightColor = glGetUniformLocation(shaderProgram.ID, "lightColor");
+  GLuint uniformLightPos = glGetUniformLocation(shaderProgram.ID, "lightPos");
 
   Shader lightShaderProgram("./src/shader/light.vert", "./src/shader/light.frag");
   GLuint lightUniformModel = glGetUniformLocation(lightShaderProgram.ID, "model");
@@ -103,8 +103,9 @@ int main() {
   VBO VBO1(vertices, sizeof(vertices));
   EBO EBO1(indices, sizeof(indices));
 
-  VAO1.LinkAtt(VBO1, 0, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*) 0);
-  VAO1.LinkAtt(VBO1, 1, 3, GL_FLOAT, 6 * sizeof(GL_FLOAT), (void*) (3 * sizeof(GL_FLOAT)));
+  VAO1.LinkAtt(VBO1, 0, 3, GL_FLOAT, 9 * sizeof(GL_FLOAT), (void*) 0);
+  VAO1.LinkAtt(VBO1, 1, 3, GL_FLOAT, 9 * sizeof(GL_FLOAT), (void*) (3 * sizeof(GL_FLOAT)));
+  VAO1.LinkAtt(VBO1, 2, 3, GL_FLOAT, 9 * sizeof(GL_FLOAT), (void*) (6 * sizeof(GL_FLOAT)));
 
   // unbind: avoid accidentally modify buffer
   VAO1.Unbind();
@@ -112,7 +113,7 @@ int main() {
   EBO1.Unbind(); // TODO: not sure why I have to unbind this after unbind VAO for something that stores in VAO
 
   // Enable Depth Buffer so that triangle can be on top of each other
-  // glEnable(GL_DEPTH_TEST); // TODO: not sure why triangle disappear
+  glEnable(GL_DEPTH_TEST); // TODO: not sure why triangle disappear
 
   VAO lightVAO;
   lightVAO.Bind();
@@ -149,14 +150,22 @@ int main() {
     camera.KeyboardControl(window);
     glm::mat4 view;
     glm::mat4 proj;
-    camera.Matrix(90.0f, 0.0f, 100.0f, &view, &proj);
+    camera.Matrix(90.0f, 0.01f, 100.0f, &view, &proj); // 0.01f is crucial for depth buffer
+
+    // ========== Calculate Model Position and Rotation ========== //
+    glm::mat4 lightModel = glm::mat4(1.0f);
+    glm::vec3 lightPos = glm::vec3(0.5f, 0.5f, 0.5f);
+    lightModel = glm::translate(lightModel, lightPos);
+
+    glm::mat4 model = glm::mat4(1.0f);
+    glm::vec3 modelPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    model = glm::rotate(glm::translate(model, modelPos), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // ========== Activate Shader ========== //
     shaderProgram.Activate();
     // ========== Send Model Data to Shader ========== //
-    glUniform1f(uniformScaleID, 0.5f); // must be after [shaderProgram.Activate()]
     glUniform4f(uniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    glUniform3f(uniformLightPos, lightPos.x, lightPos.y, lightPos.z);
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
     camera.UpdateMatrix(view, proj, uniformView, uniformProj);
     // ========== Draw Stuff ========== //
@@ -173,7 +182,6 @@ int main() {
     lightShaderProgram.Activate();
     // ========== Send Model Data to Shader ========== //
     glUniform4f(lightUniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
-    glm::mat4 lightModel = glm::mat4(1.0f);
     glUniformMatrix4fv(lightUniformModel, 1, GL_FALSE, glm::value_ptr(lightModel));
     camera.UpdateMatrix(view, proj, lightUniformView, lightUniformProj);
     // ========== Draw Stuff ========== //
