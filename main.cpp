@@ -89,12 +89,13 @@ int main() {
   GLuint uniformProj = glGetUniformLocation(shaderProgram.ID, "proj");
   GLuint uniformLightColor = glGetUniformLocation(shaderProgram.ID, "lightColor");
   GLuint uniformLightPos = glGetUniformLocation(shaderProgram.ID, "lightPos");
+  GLuint uniformCameraPos = glGetUniformLocation(shaderProgram.ID, "cameraPos");
 
   Shader lightShaderProgram("./src/shader/light.vert", "./src/shader/light.frag");
   GLuint lightUniformModel = glGetUniformLocation(lightShaderProgram.ID, "model");
   GLuint lightUniformView = glGetUniformLocation(lightShaderProgram.ID, "view");
   GLuint lightUniformProj = glGetUniformLocation(lightShaderProgram.ID, "proj");
-  GLuint lightUniformLightColor = glGetUniformLocation(shaderProgram.ID, "lightColor");
+  GLuint lightUniformLightColor = glGetUniformLocation(lightShaderProgram.ID, "lightColor");
 
   // ========== Create VAO, VBO, EBO ========== //
   VAO VAO1;
@@ -166,6 +167,7 @@ int main() {
     // ========== Send Model Data to Shader ========== //
     glUniform4f(uniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
     glUniform3f(uniformLightPos, lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(uniformCameraPos, camera.Position.x, camera.Position.y, camera.Position.z);
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
     camera.UpdateMatrix(view, proj, uniformView, uniformProj);
     // ========== Draw Stuff ========== //
