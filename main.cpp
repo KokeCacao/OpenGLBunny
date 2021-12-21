@@ -7,9 +7,7 @@
 
 #include "camera.h"
 #include "shader.h"
-#include "VAO.h"
-#include "VBO.h"
-#include "EBO.h"
+#include "mesh.h"
 
 // Configuration
 const uint WIDTH = 800;
@@ -20,11 +18,11 @@ const uint GLFW_MINOR_VERSION = 6;
 
 // define vertices to render
 // Note: we use [GLfloat] instead of [float] due to versions of [OpenGL] may specify different precision
-// =========== POSITION =========== // =========== COLOR =========== // =========== NORMAL =========== //
-GLfloat vertices[] = {
-  -0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f,   1.0f, 0.0f, 0.0f,        0.0f, 0.0f, 1.0f,
-  0.5f,  -0.5f * float(sqrt(3)) / 3,     0.0f,   0.0f, 1.0f, 0.0f,        0.0f, 0.0f, 1.0f,
-  0.0f,   0.5f * float(sqrt(3)) * 2 / 3, 0.0f,   0.0f, 0.0f, 1.0f,        0.0f, 0.0f, 1.0f,
+// =========== POSITION =========== // =========== NORMAL =========== // =========== COLOR =========== //
+Vertex vertices[] = {
+  Vertex{glm::vec3(-0.5f, -0.5f * float(sqrt(3)) / 3,     0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(1.0f, 0.0f, 0.0f)},
+  Vertex{glm::vec3(0.5f,  -0.5f * float(sqrt(3)) / 3,     0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 1.0f, 0.0f)},
+  Vertex{glm::vec3(0.0f,   0.5f * float(sqrt(3)) * 2 / 3, 0.0f),  glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 1.0f)},
 };
 
 // connect vertices to triangles
@@ -32,15 +30,15 @@ GLuint indices[] = {
   0, 1, 2,
 };
 
-GLfloat lightVertices[] = {
-  -0.1f, -0.1f, 0.1f,
-  -0.1f, -0.1f, -0.1f,
-  0.1f, -0.1f, -0.1f,
-  0.1f, -0.1f, 0.1f,
-  -0.1f, 0.1f, 0.1f,
-  -0.1f, 0.1f, -0.1f,
-  0.1f, 0.1f, -0.1f,
-  0.1f, 0.1f, 0.1f,
+Vertex lightVertices[] = {
+  Vertex{glm::vec3(-0.1f, -0.1f, 0.1f)  },
+  Vertex{glm::vec3(-0.1f, -0.1f, -0.1f) },
+  Vertex{glm::vec3(0.1f, -0.1f, -0.1f)  },
+  Vertex{glm::vec3(0.1f, -0.1f, 0.1f)   },
+  Vertex{glm::vec3(-0.1f, 0.1f, 0.1f)   },
+  Vertex{glm::vec3(-0.1f, 0.1f, -0.1f)  },
+  Vertex{glm::vec3(0.1f, 0.1f, -0.1f)   },
+  Vertex{glm::vec3(0.1f, 0.1f, 0.1f)    },
 };
 GLuint lightIndices[] = {
   0, 1, 2,
@@ -98,35 +96,18 @@ int main() {
   GLuint lightUniformLightColor = glGetUniformLocation(lightShaderProgram.ID, "lightColor");
 
   // ========== Create VAO, VBO, EBO ========== //
-  VAO VAO1;
-  VAO1.Bind();
+  // vector(begin,end):复制[begin,end)区间内另一个数组的元素到vector中
+  // https://www.runoob.com/w3cnote/cpp-vector-container-analysis.html
+  std::vector <Vertex> v(vertices, vertices + (sizeof(vertices) / sizeof(Vertex)));
+  std::vector <GLuint> i(indices, indices + (sizeof(indices) / sizeof(GLuint)));
+  Mesh meshMesh = Mesh(v, i, &shaderProgram);
 
-  VBO VBO1(vertices, sizeof(vertices));
-  EBO EBO1(indices, sizeof(indices));
-
-  VAO1.LinkAtt(VBO1, 0, 3, GL_FLOAT, 9 * sizeof(GL_FLOAT), (void*) 0);
-  VAO1.LinkAtt(VBO1, 1, 3, GL_FLOAT, 9 * sizeof(GL_FLOAT), (void*) (3 * sizeof(GL_FLOAT)));
-  VAO1.LinkAtt(VBO1, 2, 3, GL_FLOAT, 9 * sizeof(GL_FLOAT), (void*) (6 * sizeof(GL_FLOAT)));
-
-  // unbind: avoid accidentally modify buffer
-  VAO1.Unbind();
-  VBO1.Unbind();
-  EBO1.Unbind(); // TODO: not sure why I have to unbind this after unbind VAO for something that stores in VAO
+  std::vector <Vertex> vLight(lightVertices, lightVertices + (sizeof(lightVertices) / sizeof(Vertex)));
+  std::vector <GLuint> iLight(lightIndices, lightIndices + (sizeof(lightIndices) / sizeof(GLuint)));
+  Mesh lightMesh = Mesh(vLight, iLight, &lightShaderProgram);
 
   // Enable Depth Buffer so that triangle can be on top of each other
   glEnable(GL_DEPTH_TEST); // TODO: not sure why triangle disappear
-
-  VAO lightVAO;
-  lightVAO.Bind();
-
-  VBO lightVBO(lightVertices, sizeof(lightVertices));
-  EBO lightEBO(lightIndices, sizeof(lightIndices));
-
-  lightVAO.LinkAtt(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(GL_FLOAT), (void*) 0);
-
-  lightVAO.Unbind();
-  lightVBO.Unbind();
-  lightEBO.Unbind();
 
   // ========== Camera ========== //
   glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
@@ -140,7 +121,6 @@ int main() {
     double current_time = glfwGetTime();
     double elapsed_time = glfwGetTime() - prev_time;
     prev_time = current_time;
-    // printf("%f\n", (float) current_time);
 
     // ========== Background and Settings ========== //
     // "Clearing" in this context means filling with some predefined values
@@ -163,7 +143,7 @@ int main() {
     model = glm::rotate(glm::translate(model, modelPos), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // ========== Activate Shader ========== //
-    shaderProgram.Activate();
+    meshMesh.ActivateShader();
     // ========== Send Model Data to Shader ========== //
     glUniform4f(uniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
     glUniform3f(uniformLightPos, lightPos.x, lightPos.y, lightPos.z);
@@ -171,25 +151,16 @@ int main() {
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
     camera.UpdateMatrix(view, proj, uniformView, uniformProj);
     // ========== Draw Stuff ========== //
-    VAO1.Bind();
-    // specify:
-    // primitive: GL_TRIANGLES (triangle)
-    // how many vertex indices to draw (size of indices array)
-    // datatype of indices array
-    // index from
-    glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(GLuint), GL_UNSIGNED_INT, 0);
-
+    meshMesh.Draw();
 
     // ========== Activate Shader ========== //
-    lightShaderProgram.Activate();
+    lightMesh.ActivateShader();
     // ========== Send Model Data to Shader ========== //
     glUniform4f(lightUniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
     glUniformMatrix4fv(lightUniformModel, 1, GL_FALSE, glm::value_ptr(lightModel));
     camera.UpdateMatrix(view, proj, lightUniformView, lightUniformProj);
     // ========== Draw Stuff ========== //
-    lightVAO.Bind();
-    glDrawElements(GL_TRIANGLES, sizeof(lightIndices)/sizeof(GLuint), GL_UNSIGNED_INT, 0);
-
+    lightMesh.Draw();
 
     // ========== Done ========== //
     // swap back buffer with front buffer
@@ -202,10 +173,8 @@ int main() {
   }
 
   // ========== Clear Memory ==========
-  VAO1.Delete();
-  VBO1.Delete();
-  EBO1.Delete();
-  shaderProgram.Delete();
+  meshMesh.Delete();
+  lightMesh.Delete();
 
   // clear and unlink window we have created
   glfwDestroyWindow(window);

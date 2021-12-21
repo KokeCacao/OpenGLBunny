@@ -1,9 +1,9 @@
 #version 460 core
 out vec4 FragColor;
 
-in vec3 color; // this name has to match output from [.vert]
-in vec3 normal;
 in vec3 crntPos;
+in vec3 normal;
+in vec3 color; // this name has to match output from [.vert]
 
 uniform vec4 lightColor;
 uniform vec3 lightPos;
@@ -25,8 +25,4 @@ void main() {
 
   float diffuse = max(dot(normalized_normal, lightDirection), 0.0f);
   FragColor = vec4(color, 1.0f) * lightColor * (diffuse + ambientIntensity + specularIntensity);
-
-
-
-  // FragColor = vec4(color, 1.0f) * lightColor * (diffuse + ambientIntensity + specularIntensity);
 }

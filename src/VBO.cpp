@@ -1,6 +1,6 @@
 #include"VBO.h"
 
-VBO::VBO(GLfloat* vertices, GLsizeiptr vertices_size) {
+VBO::VBO(std::vector<Vertex>& vertices) {
   // ========== Setting VBO ==========
   // vertex buffer object: a array of data about one aspect of geometry (vertex / vertex color / normal / etc). It is stored in VAO
   // If you still don't understand, watch first 3min of
@@ -17,7 +17,7 @@ VBO::VBO(GLfloat* vertices, GLsizeiptr vertices_size) {
   // DRAW: will be modified for drawing
   // READ: ?
   // COPY: ?
-  glBufferData(GL_ARRAY_BUFFER, vertices_size, vertices, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), vertices.data(), GL_STATIC_DRAW);
 }
 
 void VBO::Bind() {
