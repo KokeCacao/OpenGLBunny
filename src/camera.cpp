@@ -11,10 +11,12 @@ Camera::Camera(int screen_width, int screen_height, glm::vec3 position, glm::vec
   Up = up;
 }
 
-void Camera::UpdateMatrix(float FOV, float nearPlane, float farPlane, GLuint uniformView, GLuint uniformProj) {
-  glm::mat4 view = glm::lookAt(Position, Position + Orientation, Up);
-  glm::mat4 proj = glm::perspective(glm::radians(FOV), (float)(screen_width/screen_height), nearPlane, farPlane);
+void Camera::Matrix(float FOV, float nearPlane, float farPlane, glm::mat4* view, glm::mat4* proj) {
+  *view = glm::lookAt(Position, Position + Orientation, Up);
+  *proj = glm::perspective(glm::radians(FOV), (float)(screen_width/screen_height), nearPlane, farPlane);
+}
 
+void Camera::UpdateMatrix(glm::mat4 view, glm::mat4 proj, GLuint uniformView, GLuint uniformProj) {
   // GL_FALSE: don't want OpenGL to transpose it
   glUniformMatrix4fv(uniformView, 1, GL_FALSE, glm::value_ptr(view));
   glUniformMatrix4fv(uniformProj, 1, GL_FALSE, glm::value_ptr(proj));

@@ -32,6 +32,32 @@ GLuint indices[] = {
   0, 1, 2,
 };
 
+GLfloat lightVertices[] = {
+  -0.1f, -0.1f, 0.1f,
+  -0.1f, -0.1f, -0.1f,
+  0.1f, -0.1f, -0.1f,
+  0.1f, -0.1f, 0.1f,
+  -0.1f, 0.1f, 0.1f,
+  -0.1f, 0.1f, -0.1f,
+  0.1f, 0.1f, -0.1f,
+  0.1f, 0.1f, 0.1f,
+};
+GLuint lightIndices[] = {
+  0, 1, 2,
+  0, 2, 3,
+  0, 4, 7,
+  0, 7, 3,
+  3, 7, 6,
+  3, 6, 2,
+  2, 6, 5,
+  2, 5, 1,
+  1, 5, 4,
+  1, 4, 0,
+  4, 5, 6,
+  5, 6, 7,
+};
+glm::vec4 lightColor = glm::vec4(1.0f, 0.9f, 0.9f, 1.0f);
+
 int main() {
   glfwInit();
 
@@ -62,6 +88,13 @@ int main() {
   GLuint uniformModel = glGetUniformLocation(shaderProgram.ID, "model");
   GLuint uniformView = glGetUniformLocation(shaderProgram.ID, "view");
   GLuint uniformProj = glGetUniformLocation(shaderProgram.ID, "proj");
+  GLuint uniformLightColor = glGetUniformLocation(shaderProgram.ID, "lightColor");
+
+  Shader lightShaderProgram("./src/shader/light.vert", "./src/shader/light.frag");
+  GLuint lightUniformModel = glGetUniformLocation(lightShaderProgram.ID, "model");
+  GLuint lightUniformView = glGetUniformLocation(lightShaderProgram.ID, "view");
+  GLuint lightUniformProj = glGetUniformLocation(lightShaderProgram.ID, "proj");
+  GLuint lightUniformLightColor = glGetUniformLocation(shaderProgram.ID, "lightColor");
 
   // ========== Create VAO, VBO, EBO ========== //
   VAO VAO1;
@@ -81,6 +114,18 @@ int main() {
   // Enable Depth Buffer so that triangle can be on top of each other
   // glEnable(GL_DEPTH_TEST); // TODO: not sure why triangle disappear
 
+  VAO lightVAO;
+  lightVAO.Bind();
+
+  VBO lightVBO(lightVertices, sizeof(lightVertices));
+  EBO lightEBO(lightIndices, sizeof(lightIndices));
+
+  lightVAO.LinkAtt(lightVBO, 0, 3, GL_FLOAT, 3 * sizeof(GL_FLOAT), (void*) 0);
+
+  lightVAO.Unbind();
+  lightVBO.Unbind();
+  lightEBO.Unbind();
+
   // ========== Camera ========== //
   glm::vec3 position = glm::vec3(0.0f, 0.0f, 2.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f); // TODO: not sure why this
@@ -95,31 +140,27 @@ int main() {
     prev_time = current_time;
     // printf("%f\n", (float) current_time);
 
+    // ========== Background and Settings ========== //
     // "Clearing" in this context means filling with some predefined values
     glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // ========== Camera and Send View/Proj Data to Shader ========== //
+    camera.KeyboardControl(window);
+    glm::mat4 view;
+    glm::mat4 proj;
+    camera.Matrix(90.0f, 0.0f, 100.0f, &view, &proj);
+
+    // ========== Activate Shader ========== //
     shaderProgram.Activate();
-
-    // model rotation
+    // ========== Send Model Data to Shader ========== //
     glUniform1f(uniformScaleID, 0.5f); // must be after [shaderProgram.Activate()]
-
-    // model scale
+    glUniform4f(uniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
     glm::mat4 model = glm::rotate(glm::mat4(1.0f), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     glUniformMatrix4fv(uniformModel, 1, GL_FALSE, glm::value_ptr(model));
-
-    // camera
-    camera.KeyboardControl(window);
-    camera.UpdateMatrix(90.0f, 0.0f, 100.0f, uniformView, uniformProj);
-
+    camera.UpdateMatrix(view, proj, uniformView, uniformProj);
+    // ========== Draw Stuff ========== //
     VAO1.Bind();
-
-    // specify:
-    // primitive: GL_TRIANGLES (triangle)
-    // starting index of vertices
-    // how many vertices to draw
-    // glDrawArrays(GL_TRIANGLES, 0, 3);
-
     // specify:
     // primitive: GL_TRIANGLES (triangle)
     // how many vertex indices to draw (size of indices array)
@@ -127,6 +168,20 @@ int main() {
     // index from
     glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
+
+    // ========== Activate Shader ========== //
+    lightShaderProgram.Activate();
+    // ========== Send Model Data to Shader ========== //
+    glUniform4f(lightUniformLightColor, lightColor.x, lightColor.y, lightColor.z, lightColor.w);
+    glm::mat4 lightModel = glm::mat4(1.0f);
+    glUniformMatrix4fv(lightUniformModel, 1, GL_FALSE, glm::value_ptr(lightModel));
+    camera.UpdateMatrix(view, proj, lightUniformView, lightUniformProj);
+    // ========== Draw Stuff ========== //
+    lightVAO.Bind();
+    glDrawElements(GL_TRIANGLES, sizeof(lightIndices)/sizeof(GLuint), GL_UNSIGNED_INT, 0);
+
+
+    // ========== Done ========== //
     // swap back buffer with front buffer
     // so that image can display through
     glfwSwapBuffers(window);

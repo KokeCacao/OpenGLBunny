@@ -27,7 +27,8 @@ class Camera {
 
     Camera(int screen_width, int screen_height, glm::vec3 position, glm::vec3 orientation, glm::vec3 up, float speed, float sensitivity);
 
-    void UpdateMatrix(float FOV, float nearPlane, float farPlane, GLuint uniformView, GLuint uniformProj);
+    void Matrix(float FOV, float nearPlane, float farPlane, glm::mat4* view, glm::mat4* proj);
+    void UpdateMatrix(glm::mat4 view, glm::mat4 proj, GLuint uniformView, GLuint uniformProj);
     void KeyboardControl(GLFWwindow* window);
 };
 
