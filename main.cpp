@@ -8,6 +8,7 @@
 #include "camera.h"
 #include "shader.h"
 #include "mesh.h"
+#include "model.h"
 
 // Configuration
 const uint WIDTH = 800;
@@ -57,6 +58,9 @@ GLuint lightIndices[] = {
 glm::vec4 lightColor = glm::vec4(1.0f, 0.9f, 0.9f, 1.0f);
 
 int main() {
+  Model bunny("./bunny_vn.obj\0", 3);
+  // Model bunny("./bunny_v.obj\0", 0);
+
   glfwInit();
 
   // Telling GLFW the library version stuff
@@ -100,7 +104,7 @@ int main() {
   // https://www.runoob.com/w3cnote/cpp-vector-container-analysis.html
   std::vector <Vertex> v(vertices, vertices + (sizeof(vertices) / sizeof(Vertex)));
   std::vector <GLuint> i(indices, indices + (sizeof(indices) / sizeof(GLuint)));
-  Mesh meshMesh = Mesh(v, i, &shaderProgram);
+  Mesh meshMesh = Mesh(bunny.vertices, bunny.indices, &shaderProgram);
 
   std::vector <Vertex> vLight(lightVertices, lightVertices + (sizeof(lightVertices) / sizeof(Vertex)));
   std::vector <GLuint> iLight(lightIndices, lightIndices + (sizeof(lightIndices) / sizeof(GLuint)));
@@ -124,7 +128,7 @@ int main() {
 
     // ========== Background and Settings ========== //
     // "Clearing" in this context means filling with some predefined values
-    glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
+    glClearColor(0.50f, 0.50f, 0.50f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // ========== Camera and Send View/Proj Data to Shader ========== //
@@ -139,7 +143,7 @@ int main() {
     lightModel = glm::translate(lightModel, lightPos);
 
     glm::mat4 model = glm::mat4(1.0f);
-    glm::vec3 modelPos = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 modelPos = glm::vec3(10.0f, 0.0f, 0.0f);
     model = glm::rotate(glm::translate(model, modelPos), glm::radians((float) current_time * 128.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
     // ========== Activate Shader ========== //

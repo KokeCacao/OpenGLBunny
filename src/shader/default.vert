@@ -20,5 +20,5 @@ void main() {
 
   color = aColor;
   crntPos = vec3(model * vec4(aPos, 1.0));
-  normal = aNormal;
+  normal = normalize(aNormal);
 }

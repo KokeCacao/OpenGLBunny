@@ -9,6 +9,7 @@
         "-fdiagnostics-color=always",
         "-g", // telling g++ using debug mode
         "./main.cpp", // main.cpp
+        "./src/model.cpp",
         "./src/mesh.cpp",
         "./src/shader.cpp",
         "./src/camera.cpp",
